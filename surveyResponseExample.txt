@@ -1,0 +1,14 @@
+// Tool prompt:
+/*
+This is the SurveyResponse tool.  You must capture the session id and the user id for this conversation which was used to create this chat. Also, the question being asked by the bot for the question field, the answer that was provided by the user for the response field found in the request in a field called body and finally determine the topic of the question for the questionTopic field, the customer satisfaction for this question specifically for the customerSatisfaction field and summarize the response from the user for the summaryResponse field.  Only once you have these fields, you will call this tool. The userId and sessionID can be identified in the request. The JSON attached will be like this: {"identity":"string","session_id":"string","body":"string"}
+*/
+
+  export type Data = {
+      "sessionId":string
+      "userID":string
+      "question":string
+      "questionTopic":string
+      "customerSatisfaction":boolean
+      "response":string
+      "summaryResponse":string
+  }
