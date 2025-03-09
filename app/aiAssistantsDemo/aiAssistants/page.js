@@ -82,7 +82,7 @@ const ChatComponent = () => {
 
   async function sendMessage(input, identity, sessionId) {
     setIsTyping(true);
-    const botResponse = await fetch("/api/twilio/aiAssistants", {
+    const botResponse = await fetch("/api/aiAssistantsDemo/aiAssistants", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

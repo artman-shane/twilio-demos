@@ -9,7 +9,6 @@ import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
@@ -17,16 +16,33 @@ import Link from "next/link";
 import Logo from "./Logo";
 import theme from "../styles/theme";
 import { measureFontSize } from "../utils/measureFontSize";
+import { usePathname } from "next/navigation";
 
-const pages = [{ name: "AI Assistants", path: "/aiAssistants" }];
+const pages = [
+  { name: "AI Assistants", path: "/aiAssistantsDemo/aiAssistants" },
+  {
+    name: "Voice Intelligence",
+    path: "/voiceIntelligenceDemo",
+    subLinks: [
+      { name: "Home", path: "/voiceIntelligenceDemo" },
+      { name: "Upload Media", path: "/voiceIntelligenceDemo/upload_media" },
+      { name: "Configuration", path: "/voiceIntelligenceDemo/config" },
+      { name: "Operators", path: "/voiceIntelligenceDemo/operators" },
+      { name: "Create Operator", path: "/voiceIntelligenceDemo/create_operator" },
+    ],
+  },
+];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 const Header = () => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [padding, setPadding] = React.useState(0);
+  const [isMounted, setIsMounted] = React.useState(false);
+  const pathname = usePathname();
 
   React.useEffect(() => {
+    setIsMounted(true);
     const { height } = measureFontSize("monospace", "16px"); // Adjust font family and size as needed
     setPadding(height);
   }, []);
@@ -44,6 +60,11 @@ const Header = () => {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+
+  const isCurrentPage = (path) => {
+    if (!isMounted) return false;
+    return pathname.startsWith(path);
   };
 
   return (
@@ -99,15 +120,24 @@ const Header = () => {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: "block", md: "none" } }}
             >
-              {pages.map((page) => (
+              {pages.map((page) => [
                 <MenuItem key={page.name} onClick={handleCloseNavMenu}>
                   <Link href={page.path} passHref>
                     <Typography sx={{ textAlign: "center" }}>
                       {page.name}
                     </Typography>
                   </Link>
-                </MenuItem>
-              ))}
+                </MenuItem>,
+                isMounted && isCurrentPage(page.path) && page.subLinks && page.subLinks.map((subLink) => (
+                  <MenuItem key={subLink.name} onClick={handleCloseNavMenu} sx={{ pl: 4 }}>
+                    <Link href={subLink.path} passHref>
+                      <Typography sx={{ textAlign: "center" }}>
+                        {subLink.name}
+                      </Typography>
+                    </Link>
+                  </MenuItem>
+                ))
+              ])}
             </Menu>
           </Box>
           <Typography
@@ -128,17 +158,48 @@ const Header = () => {
           >
             twilio
           </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
-              <Link key={page.name} href={page.path} passHref>
-                <Button
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  {page.name}
-                </Button>
-              </Link>
-            ))}
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, flexDirection: 'column' }}>
+            <Box sx={{ display: 'flex' }}>
+              {pages.map((page) => (
+                <React.Fragment key={page.name}>
+                  <Link href={page.path} passHref>
+                    <Button
+                      onClick={handleCloseNavMenu}
+                      sx={{
+                        my: 2,
+                        color: "white",
+                        display: "block",
+                        borderBottom: isCurrentPage(page.path) ? '2px solid white' : 'none', // Add thin line below active link
+                      }}
+                    >
+                      {page.name}
+                    </Button>
+                  </Link>
+                </React.Fragment>
+              ))}
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
+              {pages.map((page) => (
+                isMounted && isCurrentPage(page.path) && page.subLinks && page.subLinks.map((subLink) => (
+                  <Link key={subLink.name} href={subLink.path} passHref>
+                    <Button
+                      onClick={handleCloseNavMenu}
+                      sx={{
+                        my: 1,
+                        color: "white",
+                        display: "block",
+                        pl: 4,
+                        fontWeight: 'normal', // Less bold
+                        textTransform: 'capitalize', // Capitalized case
+                        fontSize: '0.875rem', // Smaller size
+                      }}
+                    >
+                      {subLink.name}
+                    </Button>
+                  </Link>
+                ))
+              ))}
+            </Box>
           </Box>
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
