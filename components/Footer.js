@@ -4,11 +4,15 @@ import { Box, Typography } from "@mui/material";
 const Footer = ({ className }) => {
   return (
     <Box
-      component="footer"
-      py={2}
+      sx={{
+        position: "fixed",
+        bottom: 0,
+        py: 2,
+        textAlign: "center",
+        width: "100%",
+      }}
       bgcolor="primary.main"
       color="white"
-      textAlign="center"
       className={className}
     >
       <Typography variant="body2">
