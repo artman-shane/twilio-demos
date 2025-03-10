@@ -11,6 +11,7 @@ import {
   CircularProgress,
   Button,
 } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import SendIcon from "@mui/icons-material/Send";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { v4 as uuidv4 } from "uuid";
@@ -181,21 +182,27 @@ const ChatComponent = () => {
             New Message Waiting
           </Button>
         )}
-        <Box className="chat-input flex items-center mt-4">
-          <TextField
-            fullWidth
-            variant="outlined"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyUp={(e) => {
-              if (e.key === "Enter") handleSend();
-            }}
-            placeholder="Type your message here..."
-            className="mr-2"
-          />
-          <IconButton color="primary" onClick={handleSend}>
-            <SendIcon />
-          </IconButton>
+        <Box sx={{ mt: 5 }}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid size={11}>
+              <TextField
+                fullWidth
+                variant="outlined"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyUp={(e) => {
+                  if (e.key === "Enter") handleSend();
+                }}
+                placeholder="Type your message here..."
+                className="mr-2"
+              />
+            </Grid>
+            <Grid size={1}>
+              <IconButton color="primary" onClick={handleSend}>
+                <SendIcon />
+              </IconButton>
+            </Grid>
+          </Grid>
         </Box>
       </Paper>
     </Container>
