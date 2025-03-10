@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import {
+  Container,
   TextField,
   IconButton,
   Box,
@@ -141,12 +142,17 @@ const ChatComponent = () => {
   };
 
   return (
-    <Box className="conversation-history flex justify-center h-auto p-6">
-      <Paper className="w-full sm:w-3/4 lg:w-1/2 p-4 rounded-lg shadow-lg">
-        <Box
-          className="max-h-80vh h-96 p-4 overflow-y-auto border-b border-gray-300"
-          ref={chatContainerRef}
-        >
+    <Container sx={{ display: "flex", justifyContent: "center", mt: 5, mb: 5 }}>
+      <Paper
+        sx={{
+          padding: 5,
+          width: { xs: 1 / 1, md: 3 / 4, lg: 2 / 3 },
+          maxheight: "80vh",
+          overflowY: "auto",
+        }}
+        elevation={10}
+      >
+        <Box ref={chatContainerRef}>
           {messages.map((message, index) => (
             <Typography
               key={index}
@@ -156,8 +162,8 @@ const ChatComponent = () => {
             </Typography>
           ))}
           {isTyping && (
-            <Box className="message assistant mb-2 flex items-center">
-              <CircularProgress size={20} className="mr-2" />
+            <Box>
+              <CircularProgress size={20} />
               <Typography>
                 <strong>Assistant:</strong> Thinking...
               </Typography>
@@ -192,7 +198,7 @@ const ChatComponent = () => {
           </IconButton>
         </Box>
       </Paper>
-    </Box>
+    </Container>
   );
 };
 
