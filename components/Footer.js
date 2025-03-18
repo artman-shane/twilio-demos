@@ -5,7 +5,6 @@ const Footer = ({ className }) => {
   return (
     <Box
       sx={{
-        position: "fixed",
         bottom: 0,
         py: 2,
         textAlign: "center",

@@ -53,7 +53,7 @@ export default function CreateOperator() {
 
     setMessage("Creating operator...");
 
-    const response = await fetch("/api/create_operator", {
+    const response = await fetch("/api/voiceIntelligenceDemo/create_operator", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",

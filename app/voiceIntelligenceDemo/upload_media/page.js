@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Container,
@@ -14,30 +14,46 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Avatar,
 } from "@mui/material";
 
 const defaultParticipants = [
   {
     channel_participant: 1,
-    image_url: "https://shane.ngrok.io/uploads/customer.png",
-    full_name: "Anna",
-    role: "Customer",
-    email: "customer.email@gmail.com",
-    user_id: "(770)555-1234",
-    media_participant_id: "Customer-12345",
+    image_url: "https://shane.ngrok.io/images/agent-stew.jpg",
+    full_name: "Stew",
+    role: "Agent",
+    email: "agent@bigco.com",
+    user_id: "Stew-xt44432",
   },
   {
     channel_participant: 2,
-    image_url: "https://shane.ngrok.io/uploads/agent.png",
-    full_name: "Marvin",
-    role: "Agent",
-    email: "agent@bigco.com",
-    user_id: "Agent-12345",
-    media_participant_id: "Media-12345",
+    image_url: "https://shane.ngrok.io/images/customer-mary.jpg",
+    full_name: "Mary",
+    role: "Customer",
+    email: "customer.email@gmailx.com",
+    media_participant_id: "+12005551212",
   },
 ];
 
+const imageBaseUrl = "https://shane.ngrok.io/images/";
+
+const menuItems = [
+  "agent-derek.jpg",
+  "agent-marisa.jpg",
+  "agent-stew.jpg",
+  "agnet-isabelle.jpg",
+  "customer-alfonzo.jpg",
+  "customer-chris.jpg",
+  "customer-mark.jpg",
+  "customer-mary.jpg",
+];
+
 export default function UploadMedia() {
+  useEffect(() => {
+    setParticipants(defaultParticipants);
+  }, []);
+
   const [message, setMessage] = useState("");
   const [participants, setParticipants] = useState(defaultParticipants);
   const router = useRouter();
@@ -59,7 +75,7 @@ export default function UploadMedia() {
     formData.append("participants", JSON.stringify(participants));
     setMessage("Uploading file...");
 
-    const response = await fetch("/api/upload", {
+    const response = await fetch("/api/voiceIntelligenceDemo/upload", {
       method: "POST",
       body: formData,
     });
@@ -69,11 +85,22 @@ export default function UploadMedia() {
     if (response.status === 200) {
       const data = await response.json();
       setMessage(`Success - transcriptSid: ${data.transcriptSid}`);
-      router.push("/");
+      router.push("/voiceIntelligenceDemo");
     } else {
       const errorText = await response.text();
       setMessage(`Error: ${errorText}`);
     }
+  };
+
+  // Function to convert filename to title case
+  const formatLabel = (fileName) => {
+    return fileName
+      .replace(/-/g, " ") // Remove hyphens
+      .replace(/\.jpg$/i, "") // Remove ".jpg" extension
+      .trim()
+      .split(" ") // Split into words
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize first letter
+      .join(" "); // Join words back together
   };
 
   return (
@@ -158,20 +185,51 @@ export default function UploadMedia() {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Image URL"
-                    value={participant.image_url}
-                    onChange={(e) =>
-                      handleParticipantChange(
-                        index,
-                        "image_url",
-                        e.target.value
-                      )
-                    }
-                    variant="outlined"
-                    margin="normal"
-                  />
+                  <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel>Image URL</InputLabel>
+                    <Select
+                      value={participant.image_url}
+                      onChange={(e) =>
+                        handleParticipantChange(
+                          index,
+                          "image_url",
+                          e.target.value
+                        )
+                      }
+                      label="Image URL"
+                      renderValue={(selected) => {
+                        const selectedItem = menuItems.find(
+                          (fileName) =>
+                            `${imageBaseUrl}${fileName}` === selected
+                        );
+
+                        return selectedItem ? (
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Avatar
+                              src={`${imageBaseUrl}${selectedItem}`}
+                              alt={formatLabel(selectedItem)}
+                              sx={{ w: 5, h: 5, mr: 1 }}
+                            />
+                            {formatLabel(selectedItem)}
+                          </Box>
+                        ) : null;
+                      }}
+                    >
+                      {menuItems.map((fileName) => (
+                        <MenuItem
+                          key={fileName}
+                          value={`${imageBaseUrl}${fileName}`}
+                        >
+                          <Avatar
+                            src={`${imageBaseUrl}${fileName}`}
+                            alt={formatLabel(fileName)}
+                            sx={{ w: 5, h: 5, mr: 1 }}
+                          />
+                          {formatLabel(fileName)}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </Grid>
                 <Grid item xs={12}>
                   <FormControl fullWidth variant="outlined" margin="normal">

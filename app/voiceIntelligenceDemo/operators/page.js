@@ -15,8 +15,7 @@ import {
   TableRow,
   Paper,
   IconButton,
-  Menu,
-  MenuItem,
+  Modal,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { styled } from "@mui/material/styles";
@@ -24,11 +23,6 @@ import { styled } from "@mui/material/styles";
 const StyledTable = styled(Table)({
   minWidth: 650,
   border: "1px solid #ddd",
-});
-
-const StyledTableCell = styled(TableCell)({
-  border: "1px solid #ddd",
-  color: "#000", // Ensure text color is visible
 });
 
 const StyledTableHead = styled(TableHead)({
@@ -39,28 +33,21 @@ export default function Operators() {
   const [operators, setOperators] = useState([]);
   const [attachedOperators, setAttachedOperators] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
-  const [loadingText, setLoadingText] = useState("Loading.");
-  const [isLoading, setIsLoading] = useState(true);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedOperator, setSelectedOperator] = useState(null);
-  const [anchorElAttached, setAnchorElAttached] = useState(null);
-  const [selectedAttachedOperator, setSelectedAttachedOperator] =
-    useState(null);
-  const [anchorElUnattached, setAnchorElUnattached] = useState(null);
-  const [selectedUnattachedOperator, setSelectedUnattachedOperator] =
-    useState(null);
+  const [selectedConfig, setSelectedConfig] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    fetchOperators();
+    fetchAttachedOperators();
+  }, []);
 
   const fetchOperators = async () => {
     try {
-      const response = await fetch("/api/operators");
-      if (!response.ok) {
-        throw new Error("Failed to fetch operators");
-      }
+      const response = await fetch("/api/voiceIntelligenceDemo/operators");
+      if (!response.ok) throw new Error("Failed to fetch operators");
       const data = await response.json();
-      // console.log("Fetched operators:", data); // Debugging
       setOperators(data);
-      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching operators:", error);
     }
@@ -68,111 +55,36 @@ export default function Operators() {
 
   const fetchAttachedOperators = async () => {
     try {
-      const response = await fetch("/api/attached_operators");
-      if (!response.ok) {
-        throw new Error("Failed to fetch attached operators");
-      }
-      const data = await response.json();
-      // console.log("Fetched attached operators:", data); // Debugging
-      setSelectedService(data.selectedService);
-      const filteredOperators = data.attachedOperators.filter(
-        (operator) => operator.author !== "twilio"
+      const response = await fetch(
+        "/api/voiceIntelligenceDemo/attached_operators"
       );
-      setAttachedOperators(filteredOperators);
+      if (!response.ok) throw new Error("Failed to fetch attached operators");
+      const data = await response.json();
+      setSelectedService(data.selectedService);
+      setAttachedOperators(
+        data.attachedOperators.filter((op) => op.author !== "twilio")
+      );
     } catch (error) {
       console.error("Error fetching attached operators:", error);
     }
   };
 
-  useEffect(() => {
-    fetchOperators();
-    fetchAttachedOperators();
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLoadingText((prev) => {
-        if (prev === "Loading.") return "Loading..";
-        if (prev === "Loading..") return "Loading...";
-        return "Loading.";
-      });
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleMenuOpen = (event, operator) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedOperator(operator);
+  const handleConfigClick = (config) => {
+    setSelectedConfig(config);
+    setOpenModal(true);
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedOperator(null);
-  };
-
-  const handleAttachedMenuOpen = (event, operator) => {
-    setAnchorElAttached(event.currentTarget);
-    setSelectedAttachedOperator(operator);
-  };
-
-  const handleAttachedMenuClose = () => {
-    setAnchorElAttached(null);
-    setSelectedAttachedOperator(null);
-  };
-
-  const handleUnattachedMenuOpen = (event, operator) => {
-    console.log("Menu Clicked - Unattached operator:", operator);
-    setAnchorElUnattached(event.currentTarget);
-    setSelectedUnattachedOperator(operator);
-  };
-
-  const handleUnattachedMenuClose = () => {
-    setAnchorElUnattached(null);
-    setSelectedUnattachedOperator(null);
-  };
-
-  const handleDelete = async () => {
-    if (!selectedOperator) return;
-    const response = await fetch(`/api/operators`, {
+  const handleDelete = async (operator) => {
+    const response = await fetch(`/api/voiceIntelligenceDemo/operators`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ sid: selectedOperator.sid }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sid: operator.sid }),
     });
 
     if (response.ok) {
-      await fetchOperators(); // Refresh the list of operators
-      handleMenuClose();
+      await fetchOperators();
     } else {
-      const errorText = await response.text();
-      alert(`Error deleting operator: ${errorText}`);
-    }
-  };
-
-  const handleAttachedDelete = async () => {
-    if (!selectedAttachedOperator) return;
-    console.log(
-      `Deleting attached operator: ${selectedAttachedOperator.sid} from service: ${selectedAttachedOperator.serviceSid}`
-    );
-    const response = await fetch(`/api/attached_operators`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        sid: selectedAttachedOperator.sid,
-        serviceSid: selectedAttachedOperator.serviceSid,
-      }),
-    });
-
-    if (response.ok) {
-      await fetchAttachedOperators(); // Refresh the list of attached operators
-      handleAttachedMenuClose();
-    } else {
-      const errorText = await response.text();
-      alert(`Error deleting attached operator: ${errorText}`);
+      alert("Error deleting operator");
     }
   };
 
@@ -182,265 +94,223 @@ export default function Operators() {
       return;
     }
 
-    console.log("Operator selected to attach:", operator);
-
-    const response = await fetch(`/api/attach_operators`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        sid: operator.sid,
-        serviceSid: selectedService.sid,
-      }),
-    });
+    const response = await fetch(
+      `/api/voiceIntelligenceDemo/attach_operators`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sid: operator.sid,
+          serviceSid: selectedService.sid,
+        }),
+      }
+    );
 
     if (response.ok) {
-      await fetchAttachedOperators(); // Refresh the list of attached operators
-      handleUnattachedMenuClose();
+      await fetchAttachedOperators();
     } else {
-      const errorText = await response.text();
-      alert(`Error attaching operator: ${errorText}`);
+      alert("Error attaching operator");
     }
   };
 
-  // Filter operators to exclude attached operators
+  const handleRemove = async (operator) => {
+    const response = await fetch(
+      `/api/voiceIntelligenceDemo/attached_operators`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sid: operator.sid,
+          serviceSid: selectedService.sid,
+        }),
+      }
+    );
+
+    if (response.ok) {
+      await fetchAttachedOperators();
+    } else {
+      alert("Error removing operator from service");
+    }
+  };
+
   const unattachedOperators = operators.filter(
     (operator) =>
-      !attachedOperators.some(
-        (attachedOperator) => attachedOperator.sid === operator.sid
-      )
+      !attachedOperators.some((attached) => attached.sid === operator.sid)
   );
-
-  const handleConfigCopy = (config) => {
-    // console.log("Handle Copy: ", config);
-    const textToCopy = JSON.stringify(config);
-
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(textToCopy).then(
-        () => {
-          alert("Config copied to clipboard");
-        },
-        (err) => {
-          console.error("Could not copy text: ", err);
-        }
-      );
-    } else {
-      // Fallback method
-      const textarea = document.createElement("textarea");
-      textarea.value = textToCopy;
-      document.body.appendChild(textarea);
-      textarea.select();
-      try {
-        document.execCommand("copy");
-        alert("Config copied to clipboard");
-      } catch (err) {
-        console.error("Could not copy text: ", err);
-        alert("Could not copy text");
-      }
-      document.body.removeChild(textarea);
-    }
-  };
 
   return (
     <Container maxWidth="lg">
-      ``
-      <Typography variant="h4" component="h1" gutterBottom>
-        Custom Operators
-      </Typography>
-      {isLoading ? (
-        <Typography variant="h6" color="textSecondary">
-          Loading<span>{loadingText.slice(7)}</span>
-        </Typography>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Description</TableCell>
-                <TableCell>Author</TableCell>
-                <TableCell>Availability</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {operators.map(
-                (operator) =>
-                  operator &&
-                  operator.author !== "Twilio" && (
-                    <TableRow key={operator.sid}>
-                      <TableCell>{operator.description}</TableCell>
-                      <TableCell>{operator.author}</TableCell>
-                      <TableCell>{operator.availability}</TableCell>
-                      <TableCell>
-                        <IconButton
-                          aria-label="more"
-                          aria-controls={`menu-${operator.sid}`}
-                          aria-haspopup="true"
-                          onClick={(event) => handleMenuOpen(event, operator)}
-                        >
-                          <MoreVertIcon />
-                        </IconButton>
-                        <Menu
-                          id={`menu-${operator.sid}`}
-                          anchorEl={anchorEl}
-                          keepMounted
-                          open={Boolean(anchorEl)}
-                          onClose={handleMenuClose}
-                        >
-                          <MenuItem onClick={handleDelete}>Delete</MenuItem>
-                        </Menu>
-                      </TableCell>
-                    </TableRow>
-                  )
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+      {/* Attached Operators */}
       <Box mt={4}>
         <Typography variant="h4" component="h2" gutterBottom>
           Attached Operators
         </Typography>
-        {selectedService && (
-          <Box mb={4}>
-            <Typography variant="h5">
-              Selected Service:{" "}
-              <span
-                style={{
-                  color: "blue",
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                }}
-                onClick={() => router.push(`/config`)}
-              >
-                {selectedService.friendly_name}
-              </span>
-            </Typography>
-            <Typography variant="body1">SID: {selectedService.sid}</Typography>
-            <Typography variant="body1">
-              Unique Name: {selectedService.unique_name}
-            </Typography>
-            <Typography variant="body1">
-              Date Created:{" "}
-              {new Date(selectedService.date_created).toLocaleString()}
-            </Typography>
-            <Typography variant="body1">
-              Date Updated:{" "}
-              {new Date(selectedService.date_updated).toLocaleString()}
-            </Typography>
-          </Box>
-        )}
         <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
+          <StyledTable>
+            <StyledTableHead>
               <TableRow>
                 <TableCell>Description</TableCell>
                 <TableCell>Friendly Name</TableCell>
                 <TableCell>Author</TableCell>
-                <TableCell>Operator Type</TableCell>
-                <TableCell>Availability</TableCell>
                 <TableCell>Config</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
-            </TableHead>
+            </StyledTableHead>
             <TableBody>
               {attachedOperators.map((operator) => (
                 <TableRow key={operator.sid}>
                   <TableCell>{operator.description}</TableCell>
                   <TableCell>{operator.friendlyName}</TableCell>
                   <TableCell>{operator.author}</TableCell>
-                  <TableCell>{operator.operatorType}</TableCell>
-                  <TableCell>{operator.availability}</TableCell>
                   <TableCell>
                     <Typography
                       variant="body2"
-                      color="textSecondary"
-                      title={JSON.stringify(operator.config)}
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleConfigCopy(operator.config)}
+                      color="primary"
+                      style={{ cursor: "pointer", textDecoration: "underline" }}
+                      onClick={() => handleConfigClick(operator.config)}
                     >
-                      Copy
+                      View Config
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <IconButton
-                      aria-label="more"
-                      aria-controls={`attached-menu-${operator.sid}`}
-                      aria-haspopup="true"
-                      onClick={(event) =>
-                        handleAttachedMenuOpen(event, operator)
-                      }
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleRemove(operator)}
                     >
-                      <MoreVertIcon />
-                    </IconButton>
-                    <Menu
-                      id={`attached-menu-${operator.sid}`}
-                      anchorEl={anchorElAttached}
-                      keepMounted
-                      open={Boolean(anchorElAttached)}
-                      onClose={handleAttachedMenuClose}
-                    >
-                      <MenuItem onClick={handleAttachedDelete}>Delete</MenuItem>
-                    </Menu>
+                      Remove from Service
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
+          </StyledTable>
         </TableContainer>
       </Box>
+
+      {/* Unattached Operators */}
       <Box mt={4}>
         <Typography variant="h4" component="h2" gutterBottom>
           Unattached Operators
         </Typography>
         <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
+          <StyledTable>
+            <StyledTableHead>
               <TableRow>
                 <TableCell>Description</TableCell>
                 <TableCell>Author</TableCell>
-                <TableCell>Availability</TableCell>
+                <TableCell>Config</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
-            </TableHead>
+            </StyledTableHead>
             <TableBody>
               {unattachedOperators.map((operator) => (
                 <TableRow key={operator.sid}>
                   <TableCell>{operator.description}</TableCell>
                   <TableCell>{operator.author}</TableCell>
-                  <TableCell>{operator.availability}</TableCell>
                   <TableCell>
-                    <IconButton
-                      aria-label="more"
-                      aria-controls={`unattached-menu-${operator.sid}`}
-                      aria-haspopup="true"
-                      onClick={(event) =>
-                        handleUnattachedMenuOpen(event, operator)
-                      }
+                    <Typography
+                      variant="body2"
+                      color="primary"
+                      style={{ cursor: "pointer", textDecoration: "underline" }}
+                      onClick={() => handleConfigClick(operator.config)}
                     >
-                      <MoreVertIcon />
-                    </IconButton>
-                    <Menu
-                      id={`unattached-menu-${operator.sid}`}
-                      anchorEl={anchorElUnattached}
-                      keepMounted
-                      open={Boolean(anchorElUnattached)}
-                      onClose={handleUnattachedMenuClose}
+                      View Config
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      onClick={() => handleAttach(operator)}
+                      color="primary"
                     >
-                      <MenuItem
-                        onClick={() => handleAttach(selectedUnattachedOperator)}
-                      >
-                        Attach to Selected Service
-                      </MenuItem>
-                    </Menu>
+                      Attach
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
+          </StyledTable>
         </TableContainer>
       </Box>
+
+      {/* Custom Operators */}
+      <Box mt={4}>
+        <Typography variant="h4" component="h2" gutterBottom>
+          Custom Operators
+        </Typography>
+        <TableContainer component={Paper}>
+          <StyledTable>
+            <StyledTableHead>
+              <TableRow>
+                <TableCell>Description</TableCell>
+                <TableCell>Author</TableCell>
+                <TableCell>Config</TableCell>
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </StyledTableHead>
+            <TableBody>
+              {operators.map(
+                (operator) =>
+                  operator.author !== "Twilio" && (
+                    <TableRow key={operator.sid}>
+                      <TableCell>{operator.description}</TableCell>
+                      <TableCell>{operator.author}</TableCell>
+                      <TableCell>
+                        <Typography
+                          variant="body2"
+                          color="primary"
+                          style={{
+                            cursor: "pointer",
+                            textDecoration: "underline",
+                          }}
+                          onClick={() => handleConfigClick(operator.config)}
+                        >
+                          View Config
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleDelete(operator)}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )
+              )}
+            </TableBody>
+          </StyledTable>
+        </TableContainer>
+      </Box>
+
+      {/* Modal */}
+      <Modal open={openModal} onClose={() => setOpenModal(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            p: 4,
+          }}
+        >
+          <Typography variant="h6">Operator Config</Typography>
+          <Typography sx={{ mt: 2, whiteSpace: "pre-wrap" }}>
+            {JSON.stringify(selectedConfig, null, 2)}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => setOpenModal(false)}
+            sx={{ mt: 2 }}
+          >
+            Close
+          </Button>
+        </Box>
+      </Modal>
     </Container>
   );
 }

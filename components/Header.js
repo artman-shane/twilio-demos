@@ -28,7 +28,10 @@ const pages = [
       { name: "Upload Media", path: "/voiceIntelligenceDemo/upload_media" },
       { name: "Configuration", path: "/voiceIntelligenceDemo/config" },
       { name: "Operators", path: "/voiceIntelligenceDemo/operators" },
-      { name: "Create Operator", path: "/voiceIntelligenceDemo/create_operator" },
+      {
+        name: "Create Operator",
+        path: "/voiceIntelligenceDemo/create_operator",
+      },
     ],
   },
 ];
@@ -45,6 +48,12 @@ const Header = () => {
     setIsMounted(true);
     const { height } = measureFontSize("monospace", "16px"); // Adjust font family and size as needed
     setPadding(height);
+    window.addEventListener("load", () => {
+      const appConfig = {
+        deploymentKey: "CVe4f515426c7cf289b011cbeefe158990",
+      };
+      Twilio.initWebchat(appConfig);
+    });
   }, []);
 
   const handleOpenNavMenu = (event) => {
@@ -128,15 +137,22 @@ const Header = () => {
                     </Typography>
                   </Link>
                 </MenuItem>,
-                isMounted && isCurrentPage(page.path) && page.subLinks && page.subLinks.map((subLink) => (
-                  <MenuItem key={subLink.name} onClick={handleCloseNavMenu} sx={{ pl: 4 }}>
-                    <Link href={subLink.path} passHref>
-                      <Typography sx={{ textAlign: "center" }}>
-                        {subLink.name}
-                      </Typography>
-                    </Link>
-                  </MenuItem>
-                ))
+                isMounted &&
+                  isCurrentPage(page.path) &&
+                  page.subLinks &&
+                  page.subLinks.map((subLink) => (
+                    <MenuItem
+                      key={subLink.name}
+                      onClick={handleCloseNavMenu}
+                      sx={{ pl: 4 }}
+                    >
+                      <Link href={subLink.path} passHref>
+                        <Typography sx={{ textAlign: "center" }}>
+                          {subLink.name}
+                        </Typography>
+                      </Link>
+                    </MenuItem>
+                  )),
               ])}
             </Menu>
           </Box>
@@ -158,8 +174,14 @@ const Header = () => {
           >
             twilio
           </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, flexDirection: 'column' }}>
-            <Box sx={{ display: 'flex' }}>
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { xs: "none", md: "flex" },
+              flexDirection: "column",
+            }}
+          >
+            <Box sx={{ display: "flex" }}>
               {pages.map((page) => (
                 <React.Fragment key={page.name}>
                   <Link href={page.path} passHref>
@@ -169,7 +191,9 @@ const Header = () => {
                         my: 2,
                         color: "white",
                         display: "block",
-                        borderBottom: isCurrentPage(page.path) ? '2px solid white' : 'none', // Add thin line below active link
+                        borderBottom: isCurrentPage(page.path)
+                          ? "2px solid white"
+                          : "none", // Add thin line below active link
                       }}
                     >
                       {page.name}
@@ -178,27 +202,37 @@ const Header = () => {
                 </React.Fragment>
               ))}
             </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
-              {pages.map((page) => (
-                isMounted && isCurrentPage(page.path) && page.subLinks && page.subLinks.map((subLink) => (
-                  <Link key={subLink.name} href={subLink.path} passHref>
-                    <Button
-                      onClick={handleCloseNavMenu}
-                      sx={{
-                        my: 1,
-                        color: "white",
-                        display: "block",
-                        pl: 4,
-                        fontWeight: 'normal', // Less bold
-                        textTransform: 'capitalize', // Capitalized case
-                        fontSize: '0.875rem', // Smaller size
-                      }}
-                    >
-                      {subLink.name}
-                    </Button>
-                  </Link>
-                ))
-              ))}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "flex-start",
+              }}
+            >
+              {pages.map(
+                (page) =>
+                  isMounted &&
+                  isCurrentPage(page.path) &&
+                  page.subLinks &&
+                  page.subLinks.map((subLink) => (
+                    <Link key={subLink.name} href={subLink.path} passHref>
+                      <Button
+                        onClick={handleCloseNavMenu}
+                        sx={{
+                          my: 1,
+                          color: "white",
+                          display: "block",
+                          pl: 4,
+                          fontWeight: "normal", // Less bold
+                          textTransform: "capitalize", // Capitalized case
+                          fontSize: "0.875rem", // Smaller size
+                        }}
+                      >
+                        {subLink.name}
+                      </Button>
+                    </Link>
+                  ))
+              )}
             </Box>
           </Box>
           <Box sx={{ flexGrow: 0 }}>

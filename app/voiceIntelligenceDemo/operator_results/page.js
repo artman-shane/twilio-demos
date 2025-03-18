@@ -27,7 +27,7 @@ export default function OperatorResults() {
           "Fetching operator results for transcript SID:",
           transcriptSid
         );
-        const response = await fetch(`/api/operator_results/${transcriptSid}`);
+        const response = await fetch(`/api/voiceIntelligenceDemo/operator_results/${transcriptSid}`);
         if (!response.ok) {
           setIsLoading(false);
           setOperatorResults({ error: "Failed to fetch operator results" });

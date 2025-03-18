@@ -3,7 +3,7 @@ import { getTwilioClient } from "/demos/voiceIntelligenceDemo/utils/twilioClient
 export async function POST(request) {
   try {
     const response = await fetch(
-      `http://${request.headers.get("host")}/api/config`
+      `http://${request.headers.get("host")}/api/voiceIntelligenceDemo/config`
     );
     if (!response.ok) {
       console.log("Failed Config response:", response);

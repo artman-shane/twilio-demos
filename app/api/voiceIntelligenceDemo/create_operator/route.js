@@ -4,7 +4,7 @@ export async function POST(req) {
   try {
     // Fetch Twilio credentials from the /api/config endpoint
     const configResponse = await fetch(
-      `http://${req.headers.get("host")}/api/config`
+      `http://${req.headers.get("host")}/api/voiceIntelligenceDemo/config`
     );
     if (!configResponse.ok) {
       console.log("Failed Config response:", configResponse);

@@ -36,7 +36,7 @@ export async function DELETE(request) {
     const { sid: operatorSid } = await request.json();
 
     // Fetch Twilio credentials from the /api/config endpoint
-    const configResponse = await fetch(`http://${request.headers.get("host")}/api/config`);
+    const configResponse = await fetch(`http://${request.headers.get("host")}/api/voiceIntelligenceDemo/config`);
     if (!configResponse.ok) {
       console.log("Failed Config response:", configResponse);
       throw new Error("Failed to fetch configuration");
