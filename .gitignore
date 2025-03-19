@@ -39,3 +39,22 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Ignore all files inside specific public subfolders
+public/images/*
+public/uploads/*
+
+# Allow only specific images
+!public/images/agent-derek.jpg
+!public/images/agent-marisa.jpg
+!public/images/agent-stew.jpg
+!public/images/agnet-isabelle.jpg
+!public/images/customer-alfonzo.jpg
+!public/images/customer-chris.jpg
+!public/images/customer-mark.jpg
+!public/images/customer-mary.jpg
+
+# Allow only specific uploads
+!public/uploads/OwlShoesReturnStereo.mp3
+!public/uploads/PrimaryLogo.png  # If this is in your uploads folder
+!public/uploads/SimplifiedLogo.png  # If this is in your uploads folder
