@@ -137,7 +137,9 @@ export default function Home() {
 
   const handleOperatorResults = () => {
     if (!selectedFile) return;
-    router.push(`/operator_results?transcriptSid=${selectedFile.sid}`);
+    router.push(
+      `/voiceIntelligenceDemo/operator_results?transcriptSid=${selectedFile.sid}`
+    );
     handleMenuClose();
   };
 

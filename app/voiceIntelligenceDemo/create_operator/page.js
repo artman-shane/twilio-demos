@@ -2,8 +2,20 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, TextField, Button, Typography, Paper, TextareaAutosize, Box, Select, MenuItem, IconButton, Tooltip } from "@mui/material";
-import ContentPasteIcon from '@mui/icons-material/ContentPaste';
+import {
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  TextareaAutosize,
+  Box,
+  Select,
+  MenuItem,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
+import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 
 export default function CreateOperator() {
   const [friendlyName, setFriendlyName] = useState("");
@@ -64,7 +76,7 @@ export default function CreateOperator() {
     if (response.status === 200) {
       const data = await response.json();
       setMessage(`Success - Operator SID: ${data.sid}`);
-      router.push("/");
+      router.push("/voiceIntelligenceDemo/operators");
     } else {
       const errorText = await response.text();
       setMessage(<span style={{ color: "red" }}>Error: {errorText}</span>);
@@ -104,7 +116,11 @@ export default function CreateOperator() {
               <MenuItem value="GenerativeJSON">GenerativeJSON</MenuItem>
             </Select>
             <Tooltip title="Paste an example">
-              <IconButton onClick={handlePasteExample} color="primary" style={{ marginLeft: "8px" }}>
+              <IconButton
+                onClick={handlePasteExample}
+                color="primary"
+                style={{ marginLeft: "8px" }}
+              >
                 <ContentPasteIcon />
               </IconButton>
             </Tooltip>
@@ -112,11 +128,11 @@ export default function CreateOperator() {
           <Box
             component="div"
             sx={{
-              border: '1px solid rgba(0, 0, 0, 0.23)',
-              borderRadius: '4px',
-              padding: '16.5px 14px',
-              marginTop: '16px',
-              marginBottom: '8px',
+              border: "1px solid rgba(0, 0, 0, 0.23)",
+              borderRadius: "4px",
+              padding: "16.5px 14px",
+              marginTop: "16px",
+              marginBottom: "8px",
             }}
           >
             <TextareaAutosize
@@ -124,11 +140,22 @@ export default function CreateOperator() {
               placeholder="Config (JSON format)"
               value={config}
               onChange={(e) => setConfig(e.target.value)}
-              style={{ width: "100%", fontFamily: "inherit", fontSize: "inherit", border: "none", outline: "none" }}
+              style={{
+                width: "100%",
+                fontFamily: "inherit",
+                fontSize: "inherit",
+                border: "none",
+                outline: "none",
+              }}
               required
             />
           </Box>
-          <Button type="submit" variant="contained" color="primary" style={{ marginTop: "16px" }}>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            style={{ marginTop: "16px" }}
+          >
             Create Operator
           </Button>
         </form>

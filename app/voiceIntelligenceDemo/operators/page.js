@@ -296,6 +296,12 @@ export default function Operators() {
             transform: "translate(-50%, -50%)",
             bgcolor: "background.paper",
             p: 4,
+            width: "80vw",
+            maxWidth: "1200px",
+            maxHeight: "90vh", // Limit height
+            overflowY: "auto", // Enable vertical scrolling
+            borderRadius: 2,
+            boxShadow: 24,
           }}
         >
           <Typography variant="h6">Operator Config</Typography>
