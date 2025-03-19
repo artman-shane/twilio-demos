@@ -44,7 +44,7 @@ next-env.d.ts
 public/images/*
 public/uploads/*
 
-# Allow only specific images
+# Allow only example images
 !public/images/agent-derek.jpg
 !public/images/agent-marisa.jpg
 !public/images/agent-stew.jpg
@@ -54,7 +54,9 @@ public/uploads/*
 !public/images/customer-mark.jpg
 !public/images/customer-mary.jpg
 
-# Allow only specific uploads
+# Allow only example audio file
 !public/uploads/OwlShoesReturnStereo.mp3
+
+# Allow only Twilio images
 !public/uploads/PrimaryLogo.png  # If this is in your uploads folder
 !public/uploads/SimplifiedLogo.png  # If this is in your uploads folder
