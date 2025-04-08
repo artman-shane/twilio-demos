@@ -29,23 +29,29 @@ const ChatComponent = () => {
   useEffect(() => {
     setSessionId(uuidv4());
     setIdentity("email@user.com");
-    const response = sendMessage("Hello", identity, sessionId).then(
-      async (response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        const data = await response.json();
-        console.log("AI Response:", data);
-        const botResponse = {
-          sender: "Assistant",
-          text:
-            data.body || `Sorry, please try that again. I wasn't listening...`,
-        };
-        setMessages([botResponse]);
-      }
-    );
   }, []);
+
+  useEffect(() => {
+    if (sessionId && identity)
+      sendMessage("Phone: +17703610560", identity, sessionId).then(
+        async (response) => {
+          if (!response.ok) {
+            console.log("Failed to get a response from Twilio.");
+            throw new Error("Network response was not ok");
+          }
+
+          const data = await response.json();
+          console.log("AI Response:", data);
+          const botResponse = {
+            sender: "Assistant",
+            text:
+              data.body ||
+              `Sorry, please try that again. I wasn't listening...`,
+          };
+          setMessages([botResponse]);
+        }
+      );
+  }, [identity, sessionId]);
 
   useEffect(() => {
     const handleScroll = () => {

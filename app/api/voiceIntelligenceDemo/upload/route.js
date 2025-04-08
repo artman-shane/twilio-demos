@@ -2,7 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
 import { getTwilioClient } from "/demos/voiceIntelligenceDemo/utils/twilioClient";
-
+import { convertToWav } from "/demos/voiceIntelligenceDemo/utils/convertToWav";
 export const config = {
   api: {
     bodyParser: false,
@@ -12,8 +12,21 @@ export const config = {
 export async function POST(req) {
   try {
     const formData = await req.formData();
-    const file = formData.get("file");
-    const filePath = path.join(process.cwd(), "public/uploads", file.name);
+    let file = formData.get("file");
+    let filePath = path.join(process.cwd(), "public/uploads", file.name);
+
+    // If the file is an MP4, extract the audio
+    if (file.name.endsWith(".mp4")) {
+      const wavBuffer = await convertToWav(await file.arrayBuffer());
+      file = new File([wavBuffer], file.name.replace(/\.mp4$/, ".wav"), {
+        type: "audio/wav",
+      });
+      filePath = path.join(
+        process.cwd(),
+        "public/uploads",
+        file.name.replace(/\.mp4$/, ".wav")
+      );
+    }
 
     // Save the file to the uploads directory
     await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));

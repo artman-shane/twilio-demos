@@ -3,10 +3,17 @@ dotenv.config();
 
 export async function POST(req) {
   try {
+    console.log("Connecting to bot");
     const body = await req.json();
+    console.log("identity: ", body.identity);
+    console.log("session_id: ", body.session_id);
+    console.log("message: ", body.message);
+    // DiffCust
+    // "https://assistants.twilio.com/v1/Assistants/aia_asst_019321b2-d23f-7b89-9af1-38e569eec609/Messages",
+    // "https://assistants.twilio.com/v1/Assistants/aia_asst_0195053d-982a-792c-afbf-54b5c8ffef4c/Messages",
     const response = await fetch(
-      "https://assistants.twilio.com/v1/Assistants/aia_asst_0195053d-982a-792c-afbf-54b5c8ffef4c/Messages",
-      {
+    "https://assistants.twilio.com/v1/Assistants/aia_asst_019321b2-d23f-7b89-9af1-38e569eec609/Messages",
+    {
         method: "POST",
         body: JSON.stringify({
           identity: body.identity,
@@ -21,6 +28,7 @@ export async function POST(req) {
         },
       }
     );
+    // console.log("Response: ", response);
 
     const data = await response.json();
     return new Response(JSON.stringify(data), { status: 200 });

@@ -114,7 +114,7 @@ export default function UploadMedia() {
             fullWidth
             type="file"
             name="file"
-            accept=".mp3,.flac,.wav"
+            accept=".mp3,.flac,.wav,.mp4"
             required
             onChange={handleFileChange}
             style={{ marginBottom: "16px" }}
