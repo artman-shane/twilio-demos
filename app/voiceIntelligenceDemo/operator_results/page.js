@@ -12,6 +12,43 @@ import {
   ListItem,
   ListItemText,
 } from "@mui/material";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import React from "react";
+import ReactJson from "react-json-view";
+
+const isMarkdown = (text) => {
+  // Check for common Markdown markers such as headers (#), emphasis (*, _), code (```) or links ([...](...))
+  return /(\n\s*#|\*\*|\*|__|_|`)/.test(text);
+};
+
+const customListItem = function CustomListItem({ node, ...props }) {
+  // Convert children to a single string to examine text.
+  // Note: This simple approach might need to be adjusted for more complex children.
+  const textContent = React.Children.toArray(props.children)
+    .map((child) => (typeof child === "string" ? child : ""))
+    .join("");
+
+  console.log("Custom List Item Text Content:", textContent);
+  // For example, if the text starts with ** and includes *Title:* then we treat it as a header.
+  if (/^\s*\*\*.*?\*\*/.test(textContent)) {
+    console.log("Rendering as header");
+    return (
+      <Typography variant="h6" gutterBottom>
+        {props.children}
+      </Typography>
+    );
+  } else {
+    console.log("Rendering as list item");
+    return (
+      <ListItem {...props}>
+        <ListItemText sx={{}} primary={props.children} />
+      </ListItem>
+    );
+  }
+
+  return <li {...props} />;
+};
 
 export default function OperatorResults() {
   const [operatorResults, setOperatorResults] = useState(null);
@@ -27,7 +64,9 @@ export default function OperatorResults() {
           "Fetching operator results for transcript SID:",
           transcriptSid
         );
-        const response = await fetch(`/api/voiceIntelligenceDemo/operator_results/${transcriptSid}`);
+        const response = await fetch(
+          `/api/voiceIntelligenceDemo/operator_results/${transcriptSid}`
+        );
         if (!response.ok) {
           setIsLoading(false);
           setOperatorResults({ error: "Failed to fetch operator results" });
@@ -60,7 +99,14 @@ export default function OperatorResults() {
         <Typography variant="h6" component="h2" gutterBottom>
           JSON Results
         </Typography>
-        <List>
+        <ReactJson
+          src={jsonResults}
+          theme="monokai" // you can choose from available themes
+          collapsed={false} // set to true to collapse nested objects by default
+          enableClipboard={true} // optional: lets users copy JSON values
+          displayDataTypes={false} // optional: hide data types
+        />
+        {/* <List>
           {Object.entries(jsonResults).map(([key, value], index) => (
             <ListItem key={`${key}-${index}`}>
               <ListItemText
@@ -73,7 +119,7 @@ export default function OperatorResults() {
               />
             </ListItem>
           ))}
-        </List>
+        </List> */}
       </Paper>
     );
   };
@@ -85,14 +131,48 @@ export default function OperatorResults() {
         style={{ padding: "16px", marginTop: "16px" }}
         key={`text-generation-results-${parentIndex}`}
       >
-        <Typography variant="h6" component="h2" gutterBottom>
-          Text Generation Results
-        </Typography>
-        {textGenerationResults.format === "text" && (
-          <Typography variant="body1">
-            {textGenerationResults.result}
+        <Box sx={{ p: 2 }}>
+          <Typography variant="h6" component="h2" gutterBottom>
+            Text Generation Results
           </Typography>
-        )}
+          {textGenerationResults.format === "text" &&
+            (isMarkdown(textGenerationResults.result) ? (
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  // Standard mappings for headings
+                  h1: ({ node, children, ...props }) => (
+                    <Typography variant="h4" gutterBottom {...props}>
+                      {children}
+                    </Typography>
+                  ),
+                  h2: ({ node, children, ...props }) => (
+                    <Typography variant="h5" gutterBottom {...props}>
+                      {children}
+                    </Typography>
+                  ),
+                  h3: ({ node, children, ...props }) => (
+                    <Typography variant="h6" gutterBottom {...props}>
+                      {children}
+                    </Typography>
+                  ),
+                  p: ({ node, children, ...props }) => (
+                    <Typography variant="body1" paragraph {...props}>
+                      {children}
+                    </Typography>
+                  ),
+                  // Override list items using our custom component:
+                  li: customListItem,
+                }}
+              >
+                {textGenerationResults.result}
+              </ReactMarkdown>
+            ) : (
+              <Typography variant="body1">
+                {textGenerationResults.result}
+              </Typography>
+            ))}
+        </Box>
       </Paper>
     );
   };
