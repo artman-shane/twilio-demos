@@ -1,9 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Container, Paper, Typography, TextField } from "@mui/material"; // Update the path to the actual location of the Container component
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+} from "@mui/material"; // Update the path to the actual location of the Container component
 
 export default function Config() {
   const [accountSid, setAccountSid] = useState("");
@@ -12,12 +21,10 @@ export default function Config() {
   const [services, setServices] = useState([]);
   const [loadingText, setLoadingText] = useState("Loading.");
   const [isLoading, setIsLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-  const router = useRouter();
+  const [originalAccountSid, setOriginalAccountSid] = useState("");
+  const [DialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
     const fetchConfig = async () => {
       const response = await fetch("/api/voiceIntelligenceDemo/config");
       const data = await response.json();
@@ -53,6 +60,7 @@ export default function Config() {
   }, []);
 
   const handleFocus = (setter) => () => {
+    setOriginalAccountSid(accountSid);
     setter("");
   };
 
@@ -66,10 +74,10 @@ export default function Config() {
     });
 
     if (response.ok) {
-      setShowModal(true);
+      setDialogOpen(true);
       setTimeout(() => {
-        setShowModal(false);
-        router.push("/");
+        setDialogOpen(false);
+        // router.push("/config");
       }, 2000);
     } else {
       const errorText = await response.text();
@@ -93,6 +101,27 @@ export default function Config() {
     }
   };
 
+  const handleBlur = () => {
+    console.log("Account SID:", accountSid);
+    if (accountSid.trim() === "") {
+      setAccountSid(originalAccountSid);
+    }
+  };
+
+  const handleAuthTokenBlur = () => {
+    if (authToken.trim() === "") {
+      setAuthToken("********");
+    }
+  };
+
+  const handleDialogClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setOpen(false);
+  };
+
   return (
     <Container maxWidth="lg" sx={{ pt: 2 }}>
       <Paper elevation={5} sx={{ p: 2 }}>
@@ -102,14 +131,17 @@ export default function Config() {
         <Typography variant="body1">
           <label className="block mb-2">Account SID:</label>
         </Typography>
-        <input
-          type="text"
+        <TextField
+          label="Account SID"
+          variant="outlined"
           value={accountSid}
           onChange={(e) => setAccountSid(e.target.value)}
           onFocus={handleFocus(setAccountSid)}
+          onBlur={handleBlur}
           placeholder="AC..."
           required
-          className="border p-2 w-full"
+          fullWidth
+          sx={{ my: 2 }}
         />
         <Typography variant="body1">
           <label className="block mb-2">Auth Token:</label>
@@ -119,23 +151,22 @@ export default function Config() {
           value={authToken}
           onChange={(e) => setAuthToken(e.target.value)}
           onFocus={handleFocus(setAuthToken)}
+          onBlur={handleAuthTokenBlur}
           placeholder="********"
           required
           fullWidth
           variant="outlined"
           margin="normal"
           label="Auth Token"
+          sx={{ my: 2 }}
         />
-        <button
-          onClick={handleSaveConfig}
-          className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-        >
+        <Button variant="contained" onClick={handleSaveConfig} color="primary">
           Save
-        </button>
-        <div className="mb-4">
-          <label className="block mb-2">
-            Conversational Intelligence Service:
-          </label>
+        </Button>
+        <Box sx={{ my: 3 }}>
+          <Typography variant="h4" component="h2" gutterBottom>
+            Select the Conversational Service:
+          </Typography>
           {isLoading ? (
             <div className="text-center text-2xl font-bold text-gray-500">
               Loading
@@ -157,14 +188,22 @@ export default function Config() {
               </div>
             ))
           )}
-        </div>
-        {isMounted && showModal && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-4 rounded">
-              <p>Configuration saved successfully!</p>
-            </div>
-          </div>
-        )}
+        </Box>
+        <Dialog
+          open={DialogOpen}
+          onClose={handleDialogClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Saving Configuration"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Configuration Saved Successfully
+            </DialogContentText>
+          </DialogContent>
+        </Dialog>
       </Paper>
     </Container>
   );
