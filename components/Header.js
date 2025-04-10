@@ -12,7 +12,8 @@ import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import Link from "next/link";
+import NextLink from "next/link";
+import MUILink from "@mui/material/Link";
 import Logo from "./Logo";
 import theme from "../styles/theme";
 import { measureFontSize } from "../utils/measureFontSize";
@@ -83,24 +84,42 @@ const Header = () => {
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters style={{ padding: `${padding}px` }}>
-          <Logo color={theme.palette.primary.main} />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="#"
+          <MUILink
+            href="/"
+            underline="none"
             sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: theme.palette.primary.main,
+              display: "flex",
+              alignItems: "center",
               textDecoration: "none",
             }}
           >
-            twilio
-          </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textDecoration: "none",
+              }}
+            >
+              <Logo color={theme.palette.primary.main} />
+              <Typography
+                variant="h6"
+                noWrap
+                sx={{
+                  mr: 2,
+                  ml: 1,
+                  display: { xs: "none", md: "flex" },
+                  fontFamily: "monospace",
+                  fontWeight: 700,
+                  letterSpacing: ".3rem",
+                  color: theme.palette.primary.main,
+                  textDecoration: "none",
+                }}
+              >
+                twilio
+              </Typography>
+            </Box>
+          </MUILink>
 
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
@@ -131,11 +150,11 @@ const Header = () => {
             >
               {pages.map((page) => [
                 <MenuItem key={page.name} onClick={handleCloseNavMenu}>
-                  <Link href={page.path} passHref>
+                  <NextLink href={page.path} passHref>
                     <Typography sx={{ textAlign: "center" }}>
                       {page.name}
                     </Typography>
-                  </Link>
+                  </NextLink>
                 </MenuItem>,
                 isMounted &&
                   isCurrentPage(page.path) &&
@@ -146,11 +165,11 @@ const Header = () => {
                       onClick={handleCloseNavMenu}
                       sx={{ pl: 4 }}
                     >
-                      <Link href={subLink.path} passHref>
+                      <NextLink href={subLink.path} passHref>
                         <Typography sx={{ textAlign: "center" }}>
                           {subLink.name}
                         </Typography>
-                      </Link>
+                      </NextLink>
                     </MenuItem>
                   )),
               ])}
@@ -184,7 +203,7 @@ const Header = () => {
             <Box sx={{ display: "flex" }}>
               {pages.map((page) => (
                 <React.Fragment key={page.name}>
-                  <Link href={page.path} passHref>
+                  <NextLink href={page.path} passHref>
                     <Button
                       onClick={handleCloseNavMenu}
                       sx={{
@@ -198,7 +217,7 @@ const Header = () => {
                     >
                       {page.name}
                     </Button>
-                  </Link>
+                  </NextLink>
                 </React.Fragment>
               ))}
             </Box>
@@ -215,7 +234,7 @@ const Header = () => {
                   isCurrentPage(page.path) &&
                   page.subLinks &&
                   page.subLinks.map((subLink) => (
-                    <Link key={subLink.name} href={subLink.path} passHref>
+                    <NextLink key={subLink.name} href={subLink.path} passHref>
                       <Button
                         onClick={handleCloseNavMenu}
                         sx={{
@@ -230,7 +249,7 @@ const Header = () => {
                       >
                         {subLink.name}
                       </Button>
-                    </Link>
+                    </NextLink>
                   ))
               )}
             </Box>
