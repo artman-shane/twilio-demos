@@ -1,4 +1,4 @@
-import { getTwilioClient } from '/demos/voiceIntelligenceDemo/utils/twilioClient';
+import { getTwilioClient } from "/demos/voiceIntelligenceDemo/utils/twilioClient";
 
 export async function GET() {
   try {
@@ -9,7 +9,9 @@ export async function GET() {
         services.map((service) => ({
           sid: service.sid,
           uniqueName: service.uniqueName,
-          friendlyName: service.friendlyName,
+          friendlyName: service.friendlyName
+            ? service.friendlyName
+            : service.uniqueName,
           languageCode: service.languageCode,
           dateCreated: service.dateCreated,
           version: service.version,

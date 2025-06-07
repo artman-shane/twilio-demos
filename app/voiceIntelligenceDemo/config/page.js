@@ -38,10 +38,18 @@ export default function Config() {
   useEffect(() => {
     if (accountSid && authToken) {
       const fetchServices = async () => {
-        const response = await fetch("/api/voiceIntelligenceDemo/services");
-        const data = await response.json();
-        setServices(data);
-        setIsLoading(false);
+        try {
+          const response = await fetch("/api/voiceIntelligenceDemo/services");
+          const data = await response.json();
+          setServices(data);
+          setIsLoading(false);
+        } catch (error) {
+          console.error("Error fetching services:", error);
+          setIsLoading(false);
+          throw new Error(
+            "Failed to fetch services. Please check your Account SID and Auth Token."
+          );
+        }
       };
       fetchServices();
     }

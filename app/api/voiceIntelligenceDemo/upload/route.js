@@ -13,19 +13,15 @@ export async function POST(req) {
   try {
     const formData = await req.formData();
     let file = formData.get("file");
-    let filePath = path.join(process.cwd(), "public/uploads", file.name);
+    let filePath = path.join(process.cwd(), "public", "uploads", file.name); // If the filename has spaces, escape them
 
     // If the file is an MP4, extract the audio
     if (file.name.endsWith(".mp4")) {
       const wavBuffer = await convertToWav(await file.arrayBuffer());
-      file = new File([wavBuffer], file.name.replace(/\.mp4$/, ".wav"), {
-        type: "audio/wav",
-      });
-      filePath = path.join(
-        process.cwd(),
-        "public/uploads",
-        file.name.replace(/\.mp4$/, ".wav")
-      );
+      const newName = file.name.replace(/\.mp4$/, ".wav");
+      file = new File([wavBuffer], newName, { type: "audio/wav" });
+      // Build the new path (again, Node can handle spaces)
+      filePath = path.join(process.cwd(), "public", "uploads", newName);
     }
 
     // Save the file to the uploads directory
@@ -33,7 +29,9 @@ export async function POST(req) {
 
     // Use the Twilio client to upload the file and get the transcript SID
     const client = getTwilioClient();
-    const mediaUrl = `http://shane.ngrok.io/uploads/${file.name}`;
+    const mediaUrl = `http://shane.ngrok.io/uploads/${encodeURIComponent(
+      file.name
+    )}`;
     console.log("Uploading with formData:", formData);
     const participants = JSON.parse(formData.get("participants") || "[]");
 

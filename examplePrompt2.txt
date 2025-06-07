@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "summary":{ "type": "string" },
+    "contacts": {
+      "name": { "type": "string" },
+      "title":{ "type": "string" },
+      "purpose":{ "type": "string" }
+    },
+    "goal":{ "type": "string" },
+    "next_steps":{
+      "owner":{ "type": "string" },
+      "actio_summary":{ "type": "string" },
+      "ae_se":{ "type": "string" },
+      "due_date":{ "type": "string" }
+    }
+  }
+}

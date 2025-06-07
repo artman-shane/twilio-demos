@@ -174,6 +174,53 @@ export default function Home() {
     }
   };
 
+  const handleDeleteAll = async () => {
+    if (fileList.length === 0) {
+      alert("No files to delete.");
+      return;
+    }
+
+    const confirmDelete = confirm(
+      `Are you sure you want to delete ALL (${fileList.length}) transcripts?`
+    );
+    if (!confirmDelete) return;
+
+    try {
+      // New approach: single POST to /deleteAll
+      const response = await fetch("/api/voiceIntelligenceDemo/deleteAll", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transcriptSids: fileList.map((f) => f.sid),
+        }),
+      });
+
+      if (response.status === 200) {
+        // Everything got deleted
+        await fetchTranscripts();
+        alert("All transcripts have been deleted.");
+      } else if (response.status === 207) {
+        // Partial success/failure
+        const json = await response.json();
+        console.warn("Some deletes failed:", json.failedSids);
+        await fetchTranscripts();
+        alert(
+          `Deleted most transcripts, but failed to delete: ${json.failedSids.join(
+            ", "
+          )}`
+        );
+      } else {
+        // Unexpected error
+        const errText = await response.text();
+        console.error("Batch delete error:", errText);
+        alert(`Failed to delete all transcripts: ${errText}`);
+      }
+    } catch (error) {
+      console.error("Error calling deleteAll:", error);
+      alert("An error occurred while deleting all transcripts. Check console.");
+    }
+  };
+
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" component="h1" gutterBottom>
@@ -186,6 +233,14 @@ export default function Home() {
           onClick={() => router.push("/voiceIntelligenceDemo/upload_media")}
         >
           Upload
+        </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          sx={{ ml: 2 }}
+          onClick={handleDeleteAll}
+        >
+          Delete All
         </Button>
       </Box>
       {isLoading ? (

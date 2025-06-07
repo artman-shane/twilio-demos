@@ -111,7 +111,7 @@ const Header = () => {
                   display: { xs: "none", md: "flex" },
                   fontFamily: "monospace",
                   fontWeight: 700,
-                  letterSpacing: ".3rem",
+                  letterSpacing: ".3r`em",
                   color: theme.palette.primary.main,
                   textDecoration: "none",
                 }}
