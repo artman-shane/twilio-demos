@@ -35,7 +35,22 @@ const pages = [
       },
     ],
   },
+  {
+    name: "RCS",
+    path: "/rcs",
+    subLinks: [
+      { name: "Create Content Template", path: "/rcs/createContentTemplate" },
+    ],
+  },
+  {
+    name: "Voice Insights",
+    path: "/voiceInsights",
+    subLinks: [
+      { name: "Calls", path: "/voiceInsights/calls" },
+    ]
+  }
 ];
+
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 const Header = () => {
